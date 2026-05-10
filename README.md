@@ -15,8 +15,8 @@ A featherweight realtime chat for 4–5 friends. Runs on Cloudflare's edge via [
 - 🎨 **Stable per-name colors** — your name is the same hue everywhere, derived deterministically (no server coordination).
 - 🧵 **Message grouping** — consecutive messages from the same sender within 60 s collapse into a tight visual block.
 - 🔁 **Auto-reconnect** — `partysocket` handles backoff; an amber banner shows when offline and clears on reconnect.
-- 🔔 **Optional ping sound** — toggleable, only fires for foreign messages while the tab is hidden, so you're not pinged by yourself.
-- 📱 **Installable PWA** — add to home screen on iOS/Android/desktop, with an offline-cached app shell.
+- 🧹 **`/clear` command** — type `/clear` in the composer to wipe a room's history for everyone (with confirmation).
+- 📱 **Installable** — manifest + icon, so iOS/Android/desktop can add it to the home screen.
 - 🕒 **Hover timestamps** — full local time on every message via the `title` attribute.
 - 💤 **Cold-start friendly** — DOs wake in ~50–200 ms, then everything is instant.
 
@@ -49,9 +49,11 @@ JSON over WebSocket, `type` discriminator:
 | C → S      | `hello`    | `{ who }` — first message after connect           |
 | C → S      | `msg`      | `{ text }`                                        |
 | C → S      | `typing`   | `{ isTyping }`                                    |
+| C → S      | `clear`    | `{}` — wipes room history                         |
 | S → C      | `history`  | `{ messages: StoredMessage[] }` (sent on connect) |
 | S → all    | `msg`      | `{ message: StoredMessage }`                      |
 | S → all    | `presence` | `{ users: string[] }`                             |
+| S → all    | `cleared`  | `{ who }` — history was wiped                     |
 | S → others | `typing`   | `{ who, isTyping }`                               |
 
 ---
@@ -98,9 +100,8 @@ tiny-chat/
 │   └── server.ts            # ChatRoom Durable Object — 4 hooks, ~100 lines
 ├── public/
 │   ├── index.html           # The whole client, single file
-│   ├── manifest.webmanifest # PWA manifest
-│   ├── icon.svg             # App icon
-│   └── sw.js                # Service worker (offline app-shell cache)
+│   ├── manifest.webmanifest # Add-to-home-screen manifest
+│   └── icon.svg             # App icon
 ├── partykit.json            # PartyKit config (`serve: "public"` is the magic)
 ├── package.json
 ├── tsconfig.json
@@ -118,11 +119,21 @@ tiny-chat/
 
 ---
 
+## 🗄️ Storage & history
+
+- Each **room key** maps to its own Durable Object with its own storage.
+- We keep the **last 100 messages** per room — older ones drop off when message 101 arrives.
+- Storage is **durable and has no TTL**: log out, close the tab, come back days later — same room key, you'll see the same history. Friends see it too.
+- Wipe a room with **`/clear`** in the composer (type it as a message). The 5-friend trust model means anyone in the room can do it.
+- Hard reset from the CLI if you ever need it: `npx partykit delete <room-key>` removes the entire DO instance.
+
+---
+
 ## 🐛 Gotchas
 
+- 👀 **You can't see your own typing indicator** — the server broadcasts `typing` to everyone *except* the sender. Open a second tab to test.
 - `onConnect` runs **before** the client sends `hello`, so a connection has no `who` until then. Presence broadcasts filter out connections without `state.who`.
 - Messages are validated/dropped if the sender hasn't said `hello` yet.
-- The service worker only caches the app shell. Live messages still need a working WebSocket.
 
 ---
 

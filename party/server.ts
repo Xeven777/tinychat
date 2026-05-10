@@ -56,6 +56,16 @@ export default class ChatRoom implements Party.Server {
       return;
     }
 
+    if (msg.type === "clear") {
+      const state = sender.state;
+      if (!state?.who) return;
+      await this.room.storage.put("messages", []);
+      this.room.broadcast(
+        JSON.stringify({ type: "cleared", who: state.who }),
+      );
+      return;
+    }
+
     if (msg.type === "msg") {
       const state = sender.state;
       if (!state?.who) return;
