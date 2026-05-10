@@ -1,0 +1,16 @@
+{
+  "name": "tiny-chat",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "partykit dev",
+    "deploy": "partykit deploy"
+  },
+  "devDependencies": {
+    "partykit": "^0.0.114",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "partysocket": "^1.0.2"
+  }
+}

@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f1115" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/icon.svg" />
+  <title>tiny-chat</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #161922;
+      --panel-2: #1d2230;
+      --border: #262b3a;
+      --text: #e6e8ee;
+      --muted: #8a93a6;
+      --accent: #7aa2ff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .login {
+      margin: auto;
+      width: min(360px, 92vw);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .login h1 {
+      margin: 0 0 4px;
+      font-size: 20px;
+    }
+
+    .login p {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .login label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 10px 0 4px;
+    }
+
+    .login input,
+    .login button {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      font: inherit;
+    }
+
+    .login button {
+      margin-top: 16px;
+      background: var(--accent);
+      color: #0a0d14;
+      border-color: transparent;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .login button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .chat {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .chat.active {
+      display: flex;
+    }
+
+    .presence {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 13px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .presence .count {
+      margin-left: auto;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .msg {
+      display: flex;
+      flex-direction: column;
+      margin-top: 10px;
+    }
+
+    .msg.grouped {
+      margin-top: 1px;
+    }
+
+    .msg.grouped .who {
+      display: none;
+    }
+
+    .msg .who {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .msg .text {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .msg .text[title] {
+      cursor: help;
+    }
+
+    .presence button.icon,
+    .composer button.icon {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 13px;
+    }
+
+    .presence button.icon.on,
+    .composer button.icon.on {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .reconnect-banner {
+      background: #3a2a14;
+      color: #ffd9a8;
+      border-bottom: 1px solid #5a3f1f;
+      padding: 6px 14px;
+      font-size: 12px;
+      text-align: center;
+      display: none;
+    }
+
+    .reconnect-banner.show { display: block; }
+
+    .typing {
+      padding: 4px 14px 0;
+      color: var(--muted);
+      font-size: 12px;
+      min-height: 18px;
+      font-style: italic;
+    }
+
+    .typing .dot {
+      display: inline-block;
+      animation: blink 1.2s infinite;
+    }
+    .typing .dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink {
+      0%, 80%, 100% { opacity: 0.2; }
+      40% { opacity: 1; }
+    }
+
+    .composer {
+      border-top: 1px solid var(--border);
+      padding: 10px 12px;
+      display: flex;
+      gap: 8px;
+      padding-bottom: max(10px, env(safe-area-inset-bottom));
+    }
+
+    .composer input {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      font: inherit;
+    }
+
+    .composer button {
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: none;
+      background: var(--accent);
+      color: #0a0d14;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .status {
+      color: var(--muted);
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="login" class="login">
+    <h1>tiny-chat</h1>
+    <p>Pick a name and a shared room key.</p>
+    <form id="login-form">
+      <label for="name">Your name</label>
+      <input id="name" required maxlength="32" autocomplete="nickname" />
+      <label for="room">Room key</label>
+      <input id="room" required maxlength="64" autocomplete="off" />
+      <button type="submit">Enter</button>
+    </form>
+  </div>
+
+  <div id="chat" class="chat">
+    <div class="presence">
+      <span id="presence-list">connecting…</span>
+      <span class="count" id="presence-count"></span>
+      <button id="sound-toggle" class="icon" type="button" title="Toggle sound">🔇</button>
+    </div>
+    <div id="reconnect-banner" class="reconnect-banner">reconnecting…</div>
+    <div id="messages" class="messages"></div>
+    <div id="typing" class="typing"></div>
+    <form id="composer" class="composer">
+      <input id="text" placeholder="Message…" autocomplete="off" maxlength="2000" />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <script type="module">
+    import PartySocket from "https://esm.sh/partysocket@1";
+
+    const $ = (id) => document.getElementById(id);
+    const loginEl = $("login");
+    const chatEl = $("chat");
+    const messagesEl = $("messages");
+    const presenceListEl = $("presence-list");
+    const presenceCountEl = $("presence-count");
+    const reconnectEl = $("reconnect-banner");
+    const soundToggleEl = $("sound-toggle");
+    const typingEl = $("typing");
+
+    const GROUP_WINDOW_MS = 60_000;
+    const TYPING_IDLE_MS = 3_000;
+    const typingUsers = new Map(); // who -> timeoutId
+    let amTyping = false;
+    let typingStopTimer = null;
+
+    const saved = JSON.parse(localStorage.getItem("tiny-chat") || "{}");
+    if (saved.name) $("name").value = saved.name;
+    if (saved.room) $("room").value = saved.room;
+
+    let socket = null;
+    let myName = "";
+    let lastMsg = null;
+    let soundOn = localStorage.getItem("tiny-chat:sound") === "1";
+    updateSoundButton();
+
+    soundToggleEl.addEventListener("click", () => {
+      soundOn = !soundOn;
+      localStorage.setItem("tiny-chat:sound", soundOn ? "1" : "0");
+      updateSoundButton();
+      if (soundOn) ensureAudio();
+    });
+
+    function updateSoundButton() {
+      soundToggleEl.textContent = soundOn ? "🔔" : "🔇";
+      soundToggleEl.classList.toggle("on", soundOn);
+    }
+
+    $("login-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = $("name").value.trim().slice(0, 32);
+      const room = $("room").value.trim().slice(0, 64);
+      if (!name || !room) return;
+      myName = name;
+      localStorage.setItem("tiny-chat", JSON.stringify({ name, room }));
+      loginEl.style.display = "none";
+      chatEl.classList.add("active");
+      connect(room, name);
+    });
+
+    function connect(room, name) {
+      socket = new PartySocket({
+        host: window.location.host,
+        room,
+      });
+
+      socket.addEventListener("open", () => {
+        reconnectEl.classList.remove("show");
+        socket.send(JSON.stringify({ type: "hello", who: name }));
+      });
+
+      socket.addEventListener("message", (e) => {
+        let data;
+        try { data = JSON.parse(e.data); } catch { return; }
+        if (data.type === "history") {
+          messagesEl.innerHTML = "";
+          lastMsg = null;
+          for (const m of data.messages) renderMessage(m);
+          scrollToBottom();
+        } else if (data.type === "msg") {
+          const wasAtBottom = isAtBottom();
+          renderMessage(data.message);
+          if (wasAtBottom) scrollToBottom();
+          if (data.message.who !== myName && document.visibilityState !== "visible") {
+            playPing();
+          }
+        } else if (data.type === "presence") {
+          renderPresence(data.users);
+        } else if (data.type === "typing") {
+          handleTyping(data.who, data.isTyping);
+        }
+      });
+
+      socket.addEventListener("close", () => {
+        reconnectEl.classList.add("show");
+      });
+    }
+
+    $("composer").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const input = $("text");
+      const text = input.value;
+      if (!text.trim() || !socket) return;
+      socket.send(JSON.stringify({ type: "msg", text }));
+      input.value = "";
+      stopTyping();
+    });
+
+    $("text").addEventListener("input", () => {
+      const hasText = $("text").value.trim().length > 0;
+      if (hasText) startTyping();
+      else stopTyping();
+    });
+
+    function startTyping() {
+      if (!socket) return;
+      if (!amTyping) {
+        amTyping = true;
+        socket.send(JSON.stringify({ type: "typing", isTyping: true }));
+      }
+      clearTimeout(typingStopTimer);
+      typingStopTimer = setTimeout(stopTyping, TYPING_IDLE_MS);
+    }
+
+    function stopTyping() {
+      clearTimeout(typingStopTimer);
+      typingStopTimer = null;
+      if (!amTyping) return;
+      amTyping = false;
+      if (socket) socket.send(JSON.stringify({ type: "typing", isTyping: false }));
+    }
+
+    function handleTyping(who, isTyping) {
+      const existing = typingUsers.get(who);
+      if (existing) clearTimeout(existing);
+      if (isTyping) {
+        const t = setTimeout(() => {
+          typingUsers.delete(who);
+          renderTyping();
+        }, TYPING_IDLE_MS + 2000);
+        typingUsers.set(who, t);
+      } else {
+        typingUsers.delete(who);
+      }
+      renderTyping();
+    }
+
+    function renderTyping() {
+      const names = [...typingUsers.keys()];
+      if (!names.length) {
+        typingEl.textContent = "";
+        return;
+      }
+      typingEl.innerHTML = "";
+      names.forEach((u, i) => {
+        const span = document.createElement("span");
+        span.textContent = u;
+        span.style.color = colorFor(u);
+        typingEl.appendChild(span);
+        if (i < names.length - 1) typingEl.append(", ");
+      });
+      const verb = names.length === 1 ? " is typing" : " are typing";
+      typingEl.append(verb);
+      const dots = document.createElement("span");
+      dots.innerHTML = '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>';
+      typingEl.append(dots);
+    }
+
+    function renderMessage(m) {
+      const grouped =
+        lastMsg &&
+        lastMsg.who === m.who &&
+        m.ts - lastMsg.ts < GROUP_WINDOW_MS;
+
+      const wrap = document.createElement("div");
+      wrap.className = grouped ? "msg grouped" : "msg";
+      const who = document.createElement("span");
+      who.className = "who";
+      who.textContent = m.who;
+      who.style.color = colorFor(m.who);
+      const text = document.createElement("span");
+      text.className = "text";
+      text.textContent = m.text;
+      text.title = formatTime(m.ts);
+      wrap.append(who, text);
+      messagesEl.appendChild(wrap);
+      lastMsg = m;
+    }
+
+    function formatTime(ts) {
+      const d = new Date(ts);
+      return d.toLocaleString();
+    }
+
+    function renderPresence(users) {
+      if (!users.length) {
+        presenceListEl.textContent = "no one online";
+        presenceCountEl.textContent = "";
+        return;
+      }
+      presenceListEl.innerHTML = "";
+      users.forEach((u, i) => {
+        const span = document.createElement("span");
+        span.textContent = u;
+        span.style.color = colorFor(u);
+        presenceListEl.appendChild(span);
+        if (i < users.length - 1) presenceListEl.append(" · ");
+      });
+      presenceCountEl.textContent = `${users.length} online`;
+    }
+
+    function colorFor(name) {
+      let h = 0;
+      for (let i = 0; i < name.length; i++) h = (h + name.charCodeAt(i)) % 360;
+      return `hsl(${h}, 70%, 70%)`;
+    }
+
+    function isAtBottom() {
+      return messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight < 80;
+    }
+    function scrollToBottom() {
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    }
+
+    let audioCtx = null;
+    function ensureAudio() {
+      if (audioCtx) return audioCtx;
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return null;
+      audioCtx = new Ctx();
+      return audioCtx;
+    }
+    function playPing() {
+      if (!soundOn) return;
+      const ctx = ensureAudio();
+      if (!ctx) return;
+      const t = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.frequency.setValueAtTime(880, t);
+      osc.frequency.exponentialRampToValueAtTime(660, t + 0.12);
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.15, t + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.2);
+    }
+  </script>
+</body>
+
+</html>
