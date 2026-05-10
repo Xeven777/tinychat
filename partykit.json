@@ -3,5 +3,5 @@
   "name": "tiny-chat",
   "main": "party/server.ts",
   "serve": "public",
-  "compatibilityDate": "2025-01-01"
+  "compatibilityDate": "2026-01-01"
 }

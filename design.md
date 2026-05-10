@@ -59,8 +59,6 @@ This style evokes:
 * **Recessed** → deep slots / inputs
 * **Accent** → electrical energy
 
-### fonts
-* anybody, arimo, space grotesk
 ---
 
 ## 3. Shadow System
@@ -103,8 +101,8 @@ box-shadow:
 
 ### Fonts
 
-* Primary: Inter
-* Technical: JetBrains Mono
+* Primary: Anybody / Arimo
+* Technical: JetBrains Mono / Space Mono
 
 ### Usage
 
