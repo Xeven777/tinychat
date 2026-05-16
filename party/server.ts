@@ -12,6 +12,7 @@ type ConnState = { who: string };
 const MAX_MESSAGES = 100;
 const MAX_TEXT_LEN = 2000;
 const MAX_NAME_LEN = 32;
+const MAX_SIGNAL_LEN = 16 * 1024;
 
 export default class ChatRoom implements Party.Server {
   constructor(readonly room: Party.Room) {}
@@ -20,6 +21,7 @@ export default class ChatRoom implements Party.Server {
     const messages =
       (await this.room.storage.get<StoredMessage[]>("messages")) ?? [];
     conn.send(JSON.stringify({ type: "history", messages }));
+    conn.send(JSON.stringify({ type: "self", id: conn.id }));
   }
 
   async onMessage(raw: string, sender: Party.Connection<ConnState>) {
@@ -35,6 +37,12 @@ export default class ChatRoom implements Party.Server {
       who?: string;
       text?: string;
       isTyping?: boolean;
+      to?: string;
+      payload?: unknown;
+      fileId?: string;
+      name?: string;
+      size?: number;
+      mime?: string;
     };
 
     if (msg.type === "hello") {
@@ -42,6 +50,46 @@ export default class ChatRoom implements Party.Server {
       if (!who) return;
       sender.setState({ who });
       this.broadcastPresence();
+      return;
+    }
+
+    if (msg.type === "signal") {
+      const state = sender.state;
+      if (!state?.who) return;
+      if (typeof msg.to !== "string" || !msg.to) return;
+      if (raw.length > MAX_SIGNAL_LEN) return;
+      const target = this.room.getConnection(msg.to);
+      if (!target) return;
+      target.send(
+        JSON.stringify({
+          type: "signal",
+          from: sender.id,
+          fromWho: state.who,
+          payload: msg.payload,
+        }),
+      );
+      return;
+    }
+
+    if (msg.type === "file-offer") {
+      const state = sender.state;
+      if (!state?.who) return;
+      if (typeof msg.fileId !== "string" || !msg.fileId) return;
+      const name = typeof msg.name === "string" ? msg.name.slice(0, 256) : "file";
+      const size = typeof msg.size === "number" ? msg.size : 0;
+      const mime = typeof msg.mime === "string" ? msg.mime.slice(0, 128) : "";
+      this.room.broadcast(
+        JSON.stringify({
+          type: "file-offer",
+          from: sender.id,
+          fromWho: state.who,
+          fileId: msg.fileId,
+          name,
+          size,
+          mime,
+        }),
+        [sender.id],
+      );
       return;
     }
 
@@ -105,9 +153,9 @@ export default class ChatRoom implements Party.Server {
   }
 
   private broadcastPresence() {
-    const users: string[] = [];
+    const users: { id: string; who: string }[] = [];
     for (const c of this.room.getConnections<ConnState>()) {
-      if (c.state?.who) users.push(c.state.who);
+      if (c.state?.who) users.push({ id: c.id, who: c.state.who });
     }
     this.room.broadcast(JSON.stringify({ type: "presence", users }));
   }

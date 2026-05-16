@@ -391,6 +391,119 @@
       letter-spacing: 0.04em;
     }
 
+    /* ===== File / image bubbles ===== */
+    .file-card {
+      margin-top: 4px;
+      max-width: 360px;
+      border: 1px solid var(--border-light);
+      background: var(--recessed);
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: var(--sh-recessed);
+    }
+    .file-card .row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 12px;
+      color: var(--text);
+    }
+    .file-card .fname {
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--accent);
+    }
+    .file-card .fsize {
+      color: var(--muted);
+      font-size: 10.5px;
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+    }
+    .file-card .download {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(0,229,255,0.4);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .file-card .download:hover { text-shadow: 0 0 8px rgba(0,229,255,0.5); }
+    .file-card .progress {
+      height: 4px;
+      background: var(--border-dark);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .file-card .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent-soft), var(--accent));
+      box-shadow: 0 0 8px rgba(0,229,255,0.5);
+      transition: width 120ms linear;
+    }
+    .file-card .status {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .file-card .status.err { color: var(--danger); }
+    .file-card .status.ok { color: var(--ok); }
+    .file-card img.preview {
+      max-width: 100%;
+      max-height: 320px;
+      border-radius: 6px;
+      display: block;
+      cursor: pointer;
+    }
+
+    /* ===== Composer attach button ===== */
+    .composer .attach {
+      padding: 0 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-light);
+      background: var(--recessed);
+      color: var(--accent);
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: var(--sh-recessed);
+      transition: box-shadow 200ms var(--ease-soft), color 150ms;
+    }
+    .composer .attach:hover {
+      box-shadow: var(--sh-recessed), 0 0 0 1px var(--accent), 0 0 10px rgba(0,229,255,0.3);
+    }
+
+    /* ===== Drag-drop overlay ===== */
+    .shell.dragover::after {
+      content: "drop to send";
+      position: absolute;
+      inset: 0;
+      background: rgba(0,229,255,0.08);
+      border: 2px dashed var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 14px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-shadow: 0 0 12px rgba(0,229,255,0.6);
+      pointer-events: none;
+      z-index: 10;
+    }
+
     /* ===== Banner ===== */
     .reconnect-banner {
       background: linear-gradient(180deg, rgba(255,181,71,0.12), rgba(255,181,71,0.04));
@@ -545,6 +658,8 @@
       <div id="messages" class="messages"></div>
       <div id="typing" class="typing"></div>
       <form id="composer" class="composer">
+        <button type="button" class="attach" id="attach" title="Send file or image" aria-label="Attach file">+</button>
+        <input type="file" id="file-input" hidden multiple />
         <div class="input-wrap">
           <span class="prompt">&gt;</span>
           <input id="text" placeholder="transmit message…" autocomplete="off" maxlength="2000" />
@@ -590,7 +705,14 @@
 
     let socket = null;
     let myName = "";
+    let myId = null;
     let lastMsg = null;
+    const peers = new Map(); // id -> who
+    const ICE_SERVERS = [{ urls: "stun:stun.l.google.com:19302" }];
+    const CHUNK_SIZE = 16 * 1024;
+    const MAX_BUFFER = 1 * 1024 * 1024;
+    const incoming = new Map(); // fileId -> { from, fromWho, name, size, mime, received, chunks, card }
+    const outgoing = new Map(); // fileId -> { name, size, mime, blobUrl, peers: Map(peerId -> {status, pc, dc, statusEl}) }
 
     $("login-form").addEventListener("submit", (e) => {
       e.preventDefault();
@@ -641,9 +763,17 @@
           messagesEl.appendChild(note);
           scrollToBottom();
         } else if (data.type === "presence") {
+          peers.clear();
+          for (const u of data.users) peers.set(u.id, u.who);
           renderPresence(data.users);
+        } else if (data.type === "self") {
+          myId = data.id;
         } else if (data.type === "typing") {
           handleTyping(data.who, data.isTyping);
+        } else if (data.type === "file-offer") {
+          handleFileOffer(data);
+        } else if (data.type === "signal") {
+          handleSignal(data);
         }
       });
 
@@ -803,8 +933,8 @@
       users.forEach((u, i) => {
         const span = document.createElement("span");
         span.className = "name";
-        span.textContent = u;
-        span.style.color = colorFor(u);
+        span.textContent = u.who;
+        span.style.color = colorFor(u.who);
         presenceListEl.appendChild(span);
         if (i < users.length - 1) {
           const sep = document.createElement("span");
@@ -828,6 +958,418 @@
     function scrollToBottom() {
       messagesEl.scrollTop = messagesEl.scrollHeight;
     }
+
+    // ===== File transfer (WebRTC P2P) =====
+
+    function formatBytes(n) {
+      if (n < 1024) return `${n} B`;
+      if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+      if (n < 1024 * 1024 * 1024) return `${(n / 1024 / 1024).toFixed(1)} MB`;
+      return `${(n / 1024 / 1024 / 1024).toFixed(2)} GB`;
+    }
+
+    function renderFileBubble({ who, name, size, mime, ts, direction, peerStatuses }) {
+      const grouped =
+        lastMsg && lastMsg.who === who && (ts - lastMsg.ts) < GROUP_WINDOW_MS;
+      const wrap = document.createElement("div");
+      wrap.className = grouped ? "msg grouped" : "msg";
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      const whoEl = document.createElement("span");
+      whoEl.className = "who";
+      whoEl.textContent = who;
+      whoEl.style.color = colorFor(who);
+      const tsEl = document.createElement("span");
+      tsEl.className = "ts";
+      tsEl.textContent = formatTime(ts);
+      tsEl.title = new Date(ts).toLocaleString();
+      meta.append(whoEl, tsEl);
+
+      const card = document.createElement("div");
+      card.className = "file-card";
+
+      const row = document.createElement("div");
+      row.className = "row";
+      const fname = document.createElement("span");
+      fname.className = "fname";
+      fname.textContent = name;
+      const fsize = document.createElement("span");
+      fsize.className = "fsize";
+      fsize.textContent = formatBytes(size);
+      row.append(fname, fsize);
+
+      const prog = document.createElement("div");
+      prog.className = "progress";
+      const bar = document.createElement("span");
+      prog.appendChild(bar);
+
+      const status = document.createElement("div");
+      status.className = "status";
+      status.textContent = direction === "out" ? "preparing…" : "incoming…";
+
+      card.append(row, prog, status);
+
+      const previewSlot = document.createElement("div");
+      card.appendChild(previewSlot);
+
+      wrap.append(meta, card);
+      messagesEl.appendChild(wrap);
+      lastMsg = { who, ts };
+
+      return { card, bar, status, previewSlot, fname };
+    }
+
+    // Track live object URLs so we can revoke them when their DOM node is removed.
+    const liveBlobUrls = new WeakMap(); // element -> url
+    const blobObserver = new MutationObserver((muts) => {
+      for (const m of muts) {
+        for (const node of m.removedNodes) {
+          if (!(node instanceof HTMLElement)) continue;
+          node.querySelectorAll("[data-blob-url]").forEach((el) => {
+            const url = liveBlobUrls.get(el);
+            if (url) { URL.revokeObjectURL(url); liveBlobUrls.delete(el); }
+          });
+        }
+      }
+    });
+    blobObserver.observe(messagesEl, { childList: true });
+
+    function showPreview(card, blob, name, mime) {
+      const url = URL.createObjectURL(blob);
+      card.previewSlot.innerHTML = "";
+      if (mime && mime.startsWith("image/")) {
+        const img = document.createElement("img");
+        img.className = "preview";
+        img.src = url;
+        img.dataset.blobUrl = "1";
+        liveBlobUrls.set(img, url);
+        img.addEventListener("click", () => window.open(url, "_blank"));
+        card.previewSlot.appendChild(img);
+      }
+      const dl = document.createElement("a");
+      dl.className = "download";
+      dl.href = url;
+      dl.download = name;
+      dl.textContent = "download";
+      dl.dataset.blobUrl = "1";
+      liveBlobUrls.set(dl, url);
+      card.previewSlot.appendChild(dl);
+    }
+
+    async function sendFile(file) {
+      if (!socket || !myId) return;
+      const wasAtBottom = isAtBottom();
+      const fileId = crypto.randomUUID();
+      const meta = { name: file.name, size: file.size, mime: file.type || "application/octet-stream" };
+      const ts = Date.now();
+
+      const card = renderFileBubble({
+        who: myName, name: meta.name, size: meta.size, mime: meta.mime, ts, direction: "out",
+      });
+      if (wasAtBottom) scrollToBottom();
+
+      const targets = [...peers.keys()].filter((id) => id !== myId);
+      if (targets.length === 0) {
+        card.status.textContent = "no peers connected";
+        card.status.classList.add("err");
+        return;
+      }
+
+      socket.send(JSON.stringify({ type: "file-offer", fileId, ...meta }));
+
+      const record = { name: meta.name, size: meta.size, mime: meta.mime, peers: new Map(), card };
+      outgoing.set(fileId, record);
+
+      const updateAggregate = () => {
+        const states = [...record.peers.values()];
+        const done = states.filter((s) => s.status === "done").length;
+        const failed = states.filter((s) => s.status === "failed").length;
+        const total = states.length;
+        if (done + failed === total) {
+          if (failed === 0) {
+            card.status.textContent = `sent to ${done}/${total}`;
+            card.status.classList.add("ok");
+            card.bar.style.width = "100%";
+          } else {
+            card.status.textContent = `sent to ${done}/${total} (${failed} failed)`;
+            card.status.classList.add(failed === total ? "err" : "");
+          }
+        } else {
+          const sending = states.filter((s) => s.status === "sending");
+          const minProg = sending.length
+            ? Math.min(...sending.map((s) => s.progress || 0))
+            : 0;
+          card.status.textContent = `sending to ${total} peer${total > 1 ? "s" : ""}…`;
+          card.bar.style.width = `${Math.round(minProg * 100)}%`;
+        }
+      };
+
+      for (const peerId of targets) {
+        const state = { status: "connecting", progress: 0 };
+        record.peers.set(peerId, state);
+        sendFileToPeer(fileId, peerId, file, meta, state, updateAggregate).catch((err) => {
+          console.error("send to", peerId, "failed", err);
+          state.status = "failed";
+          updateAggregate();
+        });
+      }
+      updateAggregate();
+    }
+
+    async function sendFileToPeer(fileId, peerId, file, meta, state, onUpdate) {
+      const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+      const dc = pc.createDataChannel(`file-${fileId}`, { ordered: true });
+      dc.binaryType = "arraybuffer";
+      dc.bufferedAmountLowThreshold = MAX_BUFFER / 2;
+
+      pc.onicecandidate = (e) => {
+        if (e.candidate) {
+          socket.send(JSON.stringify({
+            type: "signal", to: peerId,
+            payload: { kind: "ice", fileId, candidate: e.candidate },
+          }));
+        }
+      };
+      pc.onconnectionstatechange = () => {
+        if (pc.connectionState === "failed" || pc.connectionState === "disconnected") {
+          if (state.status !== "done") {
+            state.status = "failed";
+            onUpdate();
+          }
+        }
+      };
+
+      // Track this pc for incoming signaling
+      const key = `out:${fileId}:${peerId}`;
+      registerPC(key, pc);
+
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      socket.send(JSON.stringify({
+        type: "signal", to: peerId,
+        payload: { kind: "offer", fileId, sdp: pc.localDescription },
+      }));
+
+      await new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error("dc open timeout")), 30_000);
+        dc.onopen = () => { clearTimeout(timeout); resolve(); };
+        dc.onerror = (e) => { clearTimeout(timeout); reject(e); };
+      });
+
+      state.status = "sending";
+      onUpdate();
+
+      const header = JSON.stringify({ kind: "header", fileId, name: meta.name, size: meta.size, mime: meta.mime });
+      dc.send(header);
+
+      let offset = 0;
+      const reader = file.stream().getReader();
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          let buf = value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength);
+          let pos = 0;
+          while (pos < buf.byteLength) {
+            const slice = buf.slice(pos, pos + CHUNK_SIZE);
+            while (dc.bufferedAmount > MAX_BUFFER) {
+              await new Promise((r) => {
+                const onLow = () => { dc.removeEventListener("bufferedamountlow", onLow); r(); };
+                dc.addEventListener("bufferedamountlow", onLow);
+              });
+            }
+            dc.send(slice);
+            pos += slice.byteLength;
+            offset += slice.byteLength;
+            state.progress = meta.size ? offset / meta.size : 1;
+            onUpdate();
+          }
+        }
+        dc.send(JSON.stringify({ kind: "eof", fileId }));
+        await new Promise((r) => {
+          const check = () => {
+            if (dc.bufferedAmount === 0) r();
+            else setTimeout(check, 50);
+          };
+          check();
+        });
+        state.status = "done";
+        state.progress = 1;
+        onUpdate();
+      } finally {
+        setTimeout(() => {
+          try { dc.close(); } catch {}
+          try { pc.close(); } catch {}
+          signalingPCs.delete(key);
+          // Outgoing record cleanup once all peers settled
+          const rec = outgoing.get(fileId);
+          if (rec) {
+            const settled = [...rec.peers.values()].every(
+              (s) => s.status === "done" || s.status === "failed",
+            );
+            if (settled) outgoing.delete(fileId);
+          }
+        }, 2000);
+      }
+    }
+
+    // Map of { pc, remoteSet, pendingIce[] } keyed by `${dir}:${fileId}:${peerId}` to route ICE
+    const signalingPCs = new Map();
+
+    function registerPC(key, pc) {
+      const entry = { pc, remoteSet: false, pendingIce: [] };
+      signalingPCs.set(key, entry);
+      return entry;
+    }
+    async function applyRemoteDescription(entry, sdp) {
+      await entry.pc.setRemoteDescription(sdp);
+      entry.remoteSet = true;
+      for (const c of entry.pendingIce) {
+        try { await entry.pc.addIceCandidate(c); } catch (e) { console.warn("ice flush fail", e); }
+      }
+      entry.pendingIce = [];
+    }
+
+    function handleFileOffer(data) {
+      const wasAtBottom = isAtBottom();
+      const card = renderFileBubble({
+        who: data.fromWho, name: data.name, size: data.size, mime: data.mime,
+        ts: Date.now(), direction: "in",
+      });
+      if (wasAtBottom) scrollToBottom();
+      incoming.set(data.fileId, {
+        from: data.from, fromWho: data.fromWho,
+        name: data.name, size: data.size, mime: data.mime,
+        received: 0, chunks: [], card, pc: null,
+      });
+    }
+
+    async function handleSignal(data) {
+      const { from, fromWho, payload } = data;
+      if (!payload || typeof payload !== "object") return;
+      const { kind, fileId } = payload;
+      if (!fileId) return;
+
+      if (kind === "offer") {
+        const rec = incoming.get(fileId);
+        if (!rec) return;
+        const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+        rec.pc = pc;
+        const entry = registerPC(`in:${fileId}:${from}`, pc);
+
+        pc.onicecandidate = (e) => {
+          if (e.candidate) {
+            socket.send(JSON.stringify({
+              type: "signal", to: from,
+              payload: { kind: "ice", fileId, candidate: e.candidate },
+            }));
+          }
+        };
+        pc.ondatachannel = (e) => {
+          const dc = e.channel;
+          dc.binaryType = "arraybuffer";
+          dc.onmessage = (ev) => receiveChunk(fileId, ev.data);
+          dc.onclose = () => {};
+        };
+
+        await applyRemoteDescription(entry, payload.sdp);
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        socket.send(JSON.stringify({
+          type: "signal", to: from,
+          payload: { kind: "answer", fileId, sdp: pc.localDescription },
+        }));
+      } else if (kind === "answer") {
+        const entry = signalingPCs.get(`out:${fileId}:${from}`);
+        if (!entry) return;
+        await applyRemoteDescription(entry, payload.sdp);
+      } else if (kind === "ice") {
+        const entry =
+          signalingPCs.get(`out:${fileId}:${from}`) ||
+          signalingPCs.get(`in:${fileId}:${from}`);
+        if (!entry) return;
+        if (!entry.remoteSet) {
+          entry.pendingIce.push(payload.candidate);
+        } else {
+          try { await entry.pc.addIceCandidate(payload.candidate); } catch (e) { console.warn("ice fail", e); }
+        }
+      }
+    }
+
+    function receiveChunk(fileId, data) {
+      const rec = incoming.get(fileId);
+      if (!rec) return;
+      if (typeof data === "string") {
+        let parsed;
+        try { parsed = JSON.parse(data); } catch { return; }
+        if (parsed.kind === "header") {
+          rec.name = parsed.name; rec.size = parsed.size; rec.mime = parsed.mime;
+          rec.card.fname.textContent = parsed.name;
+          rec.card.status.textContent = "receiving…";
+        } else if (parsed.kind === "eof") {
+          const blob = new Blob(rec.chunks, { type: rec.mime || "application/octet-stream" });
+          rec.card.bar.style.width = "100%";
+          rec.card.status.textContent = "received";
+          rec.card.status.classList.add("ok");
+          showPreview(rec.card, blob, rec.name, rec.mime);
+          rec.chunks = [];
+          setTimeout(() => {
+            if (rec.pc) try { rec.pc.close(); } catch {}
+            signalingPCs.delete(`in:${fileId}:${rec.from}`);
+            incoming.delete(fileId);
+          }, 2000);
+        }
+        return;
+      }
+      rec.chunks.push(data);
+      rec.received += data.byteLength;
+      if (rec.size) {
+        rec.card.bar.style.width = `${Math.round((rec.received / rec.size) * 100)}%`;
+      }
+    }
+
+    // ===== UI wiring for file sending =====
+    $("attach").addEventListener("click", () => $("file-input").click());
+    $("file-input").addEventListener("change", (e) => {
+      for (const f of e.target.files) sendFile(f);
+      e.target.value = "";
+    });
+
+    document.addEventListener("paste", (e) => {
+      if (!socket) return;
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (const it of items) {
+        if (it.kind === "file") {
+          const f = it.getAsFile();
+          if (f) sendFile(f);
+        }
+      }
+    });
+
+    const shellEl = document.querySelector(".shell");
+    let dragDepth = 0;
+    window.addEventListener("dragenter", (e) => {
+      if (!socket) return;
+      if (!e.dataTransfer?.types?.includes("Files")) return;
+      dragDepth++;
+      shellEl?.classList.add("dragover");
+    });
+    window.addEventListener("dragover", (e) => {
+      if (e.dataTransfer?.types?.includes("Files")) e.preventDefault();
+    });
+    window.addEventListener("dragleave", () => {
+      dragDepth = Math.max(0, dragDepth - 1);
+      if (dragDepth === 0) shellEl?.classList.remove("dragover");
+    });
+    window.addEventListener("drop", (e) => {
+      if (!e.dataTransfer?.files?.length) return;
+      e.preventDefault();
+      dragDepth = 0;
+      shellEl?.classList.remove("dragover");
+      for (const f of e.dataTransfer.files) sendFile(f);
+    });
 
   </script>
 </body>
