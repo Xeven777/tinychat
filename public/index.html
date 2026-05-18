@@ -708,7 +708,13 @@
     let myId = null;
     let lastMsg = null;
     const peers = new Map(); // id -> who
-    const ICE_SERVERS = [{ urls: "stun:stun.l.google.com:19302" }];
+    // ICE servers: STUN for NAT traversal, TURN as fallback for strict NAT.
+    // To add TURN: get credentials from Cloudflare Calls or run coturn on a VPS, then add:
+    // { urls: ["turn:turnserver.com:3478"], username: "user", credential: "pass" }
+    const ICE_SERVERS = [
+      { urls: "stun:stun.l.google.com:19302" },
+      { urls: "stun:stun1.l.google.com:19302" },
+    ];
     const CHUNK_SIZE = 16 * 1024;
     const MAX_BUFFER = 1 * 1024 * 1024;
     const incoming = new Map(); // fileId -> { from, fromWho, name, size, mime, received, chunks, card }
@@ -1091,9 +1097,11 @@
             card.status.textContent = `sent to ${done}/${total}`;
             card.status.classList.add("ok");
             card.bar.style.width = "100%";
+          } else if (failed === total) {
+            card.status.textContent = `transfer failed: ICE could not connect (strict NAT?). check about:webrtc`;
+            card.status.classList.add("err");
           } else {
             card.status.textContent = `sent to ${done}/${total} (${failed} failed)`;
-            card.status.classList.add(failed === total ? "err" : "");
           }
         } else {
           const sending = states.filter((s) => s.status === "sending");
@@ -1129,6 +1137,14 @@
             type: "signal", to: peerId,
             payload: { kind: "ice", fileId, candidate: e.candidate },
           }));
+        }
+      };
+      pc.oniceconnectionstatechange = () => {
+        if (pc.iceConnectionState === "failed") {
+          if (state.status !== "done") {
+            state.status = "failed";
+            onUpdate();
+          }
         }
       };
       pc.onconnectionstatechange = () => {
