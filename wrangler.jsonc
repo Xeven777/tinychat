@@ -1,0 +1,10 @@
+{
+  "name": "tiny-chat",
+  "main": "party/server.ts",
+  "compatibility_date": "2026-01-01",
+  "durable_objects": {
+    "bindings": [{ "name": "Main", "class_name": "ChatRoom" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["ChatRoom"] }],
+  "assets": { "directory": "./public" }
+}

@@ -1,5 +1,5 @@
 node_modules/
-.partykit/
 .DS_Store
 *.log
 bun.lock
+.wrangler/

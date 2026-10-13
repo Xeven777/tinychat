@@ -33,24 +33,48 @@
       --ease: cubic-bezier(0.175, 0.885, 0.32, 1.275);
       --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
 
-      --sh-panel: 6px 6px 16px rgba(0,0,0,0.7), -2px -2px 8px rgba(0,229,255,0.04);
-      --sh-recessed: inset 4px 4px 10px rgba(0,0,0,0.4), inset -1px -1px 4px rgba(0,229,255,0.05);
-      --sh-glow: 0 0 8px rgba(0,229,255,0.5), 0 0 24px rgba(0,229,255,0.2);
-      --sh-button: 0 6px 14px rgba(0,0,0,0.7), 0 0 10px rgba(0,229,255,0.35);
-      --sh-button-hover: 0 8px 20px rgba(0,0,0,0.8), 0 0 18px rgba(0,229,255,0.6);
+      --sh-panel:
+        6px 6px 16px rgba(0, 0, 0, 0.7), -2px -2px 8px rgba(0, 229, 255, 0.04);
+      --sh-recessed:
+        inset 4px 4px 10px rgba(0, 0, 0, 0.4),
+        inset -1px -1px 4px rgba(0, 229, 255, 0.05);
+      --sh-glow:
+        0 0 8px rgba(0, 229, 255, 0.5), 0 0 24px rgba(0, 229, 255, 0.2);
+      --sh-button:
+        0 6px 14px rgba(0, 0, 0, 0.7), 0 0 10px rgba(0, 229, 255, 0.35);
+      --sh-button-hover:
+        0 8px 20px rgba(0, 0, 0, 0.8), 0 0 18px rgba(0, 229, 255, 0.6);
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
-    html, body { height: 100%; margin: 0; }
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
 
     body {
       background:
-        radial-gradient(ellipse at top, rgba(0,229,255,0.06), transparent 55%),
-        radial-gradient(ellipse at bottom, rgba(0,188,212,0.04), transparent 60%),
+        radial-gradient(ellipse at top,
+          rgba(0, 229, 255, 0.06),
+          transparent 55%),
+        radial-gradient(ellipse at bottom,
+          rgba(0, 188, 212, 0.04),
+          transparent 60%),
         var(--bg);
       color: var(--text);
-      font: 15px/1.5 "Arimo","Inter",Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font:
+        15px/1.5 "Arimo",
+        "Inter",
+        Arial,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        sans-serif;
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -60,11 +84,14 @@
       content: "";
       position: fixed;
       inset: 0;
-      background-image: radial-gradient(rgba(0,229,255,0.05) 1px, transparent 1px);
+      background-image: radial-gradient(rgba(0, 229, 255, 0.05) 1px,
+          transparent 1px);
       background-size: 32px 32px;
       pointer-events: none;
       z-index: 0;
-      mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+      mask-image: radial-gradient(ellipse at center,
+          black 40%,
+          transparent 80%);
     }
 
     /* ===== Login (terminal boot panel) ===== */
@@ -86,7 +113,7 @@
       inset: 6px;
       border-radius: 10px;
       pointer-events: none;
-      box-shadow: inset 0 0 0 1px rgba(0,229,255,0.04);
+      box-shadow: inset 0 0 0 1px rgba(0, 229, 255, 0.04);
     }
 
     .login h1 {
@@ -97,7 +124,7 @@
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--accent);
-      text-shadow: 0 0 10px rgba(0,229,255,0.45);
+      text-shadow: 0 0 10px rgba(0, 229, 255, 0.45);
       display: flex;
       align-items: center;
       gap: 10px;
@@ -105,9 +132,13 @@
 
     .login h1::before {
       content: "";
-      width: 8px; height: 8px; border-radius: 50%;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
       background: var(--accent);
-      box-shadow: 0 0 8px var(--accent), 0 0 16px rgba(0,229,255,0.5);
+      box-shadow:
+        0 0 8px var(--accent),
+        0 0 16px rgba(0, 229, 255, 0.5);
       animation: pulse 1.8s ease-in-out infinite;
     }
 
@@ -135,7 +166,10 @@
       border: 1px solid var(--border-dark);
       background: var(--recessed);
       color: var(--accent);
-      font: 500 14px/1 "JetBrains Mono", ui-monospace, monospace;
+      font:
+        500 14px/1 "JetBrains Mono",
+        ui-monospace,
+        monospace;
       letter-spacing: 0.04em;
       box-shadow: var(--sh-recessed);
       transition: box-shadow 200ms var(--ease-soft);
@@ -143,7 +177,10 @@
     }
 
     .login input:focus {
-      box-shadow: var(--sh-recessed), 0 0 0 1px var(--accent), 0 0 12px rgba(0,229,255,0.45);
+      box-shadow:
+        var(--sh-recessed),
+        0 0 0 1px var(--accent),
+        0 0 12px rgba(0, 229, 255, 0.45);
     }
 
     .login button {
@@ -151,7 +188,7 @@
       margin-top: 22px;
       padding: 12px 14px;
       border-radius: 8px;
-      border: 1px solid rgba(0,229,255,0.6);
+      border: 1px solid rgba(0, 229, 255, 0.6);
       background: linear-gradient(180deg, #00f0ff, var(--accent-soft));
       color: #001014;
       font-family: "JetBrains Mono", ui-monospace, monospace;
@@ -161,7 +198,9 @@
       text-transform: uppercase;
       cursor: pointer;
       box-shadow: var(--sh-button);
-      transition: transform 150ms var(--ease), box-shadow 200ms var(--ease-soft);
+      transition:
+        transform 150ms var(--ease),
+        box-shadow 200ms var(--ease-soft);
     }
 
     .login button:hover {
@@ -170,7 +209,9 @@
 
     .login button:active {
       transform: translateY(2px);
-      box-shadow: inset 4px 4px 8px rgba(0,0,0,0.5), 0 0 6px rgba(0,229,255,0.4);
+      box-shadow:
+        inset 4px 4px 8px rgba(0, 0, 0, 0.5),
+        0 0 6px rgba(0, 229, 255, 0.4);
     }
 
     /* ===== Chat shell ===== */
@@ -196,7 +237,9 @@
       background: var(--panel);
       border-left: 1px solid var(--border-light);
       border-right: 1px solid var(--border-light);
-      box-shadow: 0 0 60px rgba(0,0,0,0.6), 0 0 0 1px var(--border-dark);
+      box-shadow:
+        0 0 60px rgba(0, 0, 0, 0.6),
+        0 0 0 1px var(--border-dark);
     }
 
     /* ===== Header ===== */
@@ -207,7 +250,7 @@
       gap: 16px;
       background: linear-gradient(180deg, var(--panel-edge), var(--panel));
       border-bottom: 1px solid var(--border-dark);
-      box-shadow: 0 1px 0 rgba(0,229,255,0.05);
+      box-shadow: 0 1px 0 rgba(0, 229, 255, 0.05);
     }
 
     .header .room {
@@ -231,7 +274,7 @@
       font-weight: 700;
       letter-spacing: 0.06em;
       color: var(--accent);
-      text-shadow: 0 0 8px rgba(0,229,255,0.35);
+      text-shadow: 0 0 8px rgba(0, 229, 255, 0.35);
       cursor: pointer;
       white-space: nowrap;
       overflow: hidden;
@@ -244,13 +287,17 @@
     }
 
     .room-code:hover {
-      background: rgba(0,229,255,0.06);
+      background: rgba(0, 229, 255, 0.06);
     }
 
     .header .divider {
       width: 1px;
       align-self: stretch;
-      background: linear-gradient(180deg, transparent, var(--border-light) 30%, var(--border-light) 70%, transparent);
+      background: linear-gradient(180deg,
+          transparent,
+          var(--border-light) 30%,
+          var(--border-light) 70%,
+          transparent);
     }
 
     .header .presence {
@@ -295,17 +342,27 @@
 
     .led {
       display: inline-block;
-      width: 8px; height: 8px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: var(--ok);
-      box-shadow: 0 0 6px var(--ok), 0 0 12px rgba(61,220,151,0.5);
+      box-shadow:
+        0 0 6px var(--ok),
+        0 0 12px rgba(61, 220, 151, 0.5);
       animation: pulse 2s ease-in-out infinite;
       flex-shrink: 0;
     }
 
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.55; }
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.55;
+      }
     }
 
     /* ===== Messages ===== */
@@ -319,12 +376,18 @@
       scrollbar-color: var(--border-light) transparent;
     }
 
-    .messages::-webkit-scrollbar { width: 8px; }
+    .messages::-webkit-scrollbar {
+      width: 8px;
+    }
+
     .messages::-webkit-scrollbar-thumb {
       background: var(--border-light);
       border-radius: 4px;
     }
-    .messages::-webkit-scrollbar-thumb:hover { background: var(--accent-soft); }
+
+    .messages::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-soft);
+    }
 
     .msg {
       display: flex;
@@ -334,12 +397,24 @@
     }
 
     @keyframes msg-in {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
-    .msg.grouped { margin-top: 3px; }
-    .msg.grouped .meta { display: none; }
+    .msg.grouped {
+      margin-top: 3px;
+    }
+
+    .msg.grouped .meta {
+      display: none;
+    }
 
     .msg .meta {
       display: flex;
@@ -373,14 +448,16 @@
     .msg .text a {
       color: var(--accent);
       text-decoration: none;
-      border-bottom: 1px solid rgba(0,229,255,0.4);
+      border-bottom: 1px solid rgba(0, 229, 255, 0.4);
       padding-bottom: 1px;
-      transition: border-color 150ms, text-shadow 150ms;
+      transition:
+        border-color 150ms,
+        text-shadow 150ms;
     }
 
     .msg .text a:hover {
       border-bottom-color: var(--accent);
-      text-shadow: 0 0 8px rgba(0,229,255,0.5);
+      text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
     }
 
     .msg.system .text {
@@ -404,6 +481,7 @@
       gap: 6px;
       box-shadow: var(--sh-recessed);
     }
+
     .file-card .row {
       display: flex;
       align-items: center;
@@ -412,6 +490,7 @@
       font-size: 12px;
       color: var(--text);
     }
+
     .file-card .fname {
       flex: 1;
       min-width: 0;
@@ -420,35 +499,43 @@
       text-overflow: ellipsis;
       color: var(--accent);
     }
+
     .file-card .fsize {
       color: var(--muted);
       font-size: 10.5px;
       letter-spacing: 0.04em;
       flex-shrink: 0;
     }
+
     .file-card .download {
       color: var(--accent);
       text-decoration: none;
-      border-bottom: 1px solid rgba(0,229,255,0.4);
+      border-bottom: 1px solid rgba(0, 229, 255, 0.4);
       font-size: 11px;
       letter-spacing: 0.06em;
       text-transform: uppercase;
     }
-    .file-card .download:hover { text-shadow: 0 0 8px rgba(0,229,255,0.5); }
+
+    .file-card .download:hover {
+      text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+    }
+
     .file-card .progress {
       height: 4px;
       background: var(--border-dark);
       border-radius: 2px;
       overflow: hidden;
     }
-    .file-card .progress > span {
+
+    .file-card .progress>span {
       display: block;
       height: 100%;
       width: 0%;
       background: linear-gradient(90deg, var(--accent-soft), var(--accent));
-      box-shadow: 0 0 8px rgba(0,229,255,0.5);
+      box-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
       transition: width 120ms linear;
     }
+
     .file-card .status {
       font-family: "JetBrains Mono", ui-monospace, monospace;
       font-size: 10.5px;
@@ -456,8 +543,15 @@
       color: var(--muted);
       text-transform: uppercase;
     }
-    .file-card .status.err { color: var(--danger); }
-    .file-card .status.ok { color: var(--ok); }
+
+    .file-card .status.err {
+      color: var(--danger);
+    }
+
+    .file-card .status.ok {
+      color: var(--ok);
+    }
+
     .file-card img.preview {
       max-width: 100%;
       max-height: 320px;
@@ -477,10 +571,16 @@
       font-size: 16px;
       cursor: pointer;
       box-shadow: var(--sh-recessed);
-      transition: box-shadow 200ms var(--ease-soft), color 150ms;
+      transition:
+        box-shadow 200ms var(--ease-soft),
+        color 150ms;
     }
+
     .composer .attach:hover {
-      box-shadow: var(--sh-recessed), 0 0 0 1px var(--accent), 0 0 10px rgba(0,229,255,0.3);
+      box-shadow:
+        var(--sh-recessed),
+        0 0 0 1px var(--accent),
+        0 0 10px rgba(0, 229, 255, 0.3);
     }
 
     /* ===== Drag-drop overlay ===== */
@@ -488,7 +588,7 @@
       content: "drop to send";
       position: absolute;
       inset: 0;
-      background: rgba(0,229,255,0.08);
+      background: rgba(0, 229, 255, 0.08);
       border: 2px dashed var(--accent);
       border-radius: 8px;
       display: flex;
@@ -499,16 +599,18 @@
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--accent);
-      text-shadow: 0 0 12px rgba(0,229,255,0.6);
+      text-shadow: 0 0 12px rgba(0, 229, 255, 0.6);
       pointer-events: none;
       z-index: 10;
     }
 
     /* ===== Banner ===== */
     .reconnect-banner {
-      background: linear-gradient(180deg, rgba(255,181,71,0.12), rgba(255,181,71,0.04));
+      background: linear-gradient(180deg,
+          rgba(255, 181, 71, 0.12),
+          rgba(255, 181, 71, 0.04));
       color: var(--warn);
-      border-bottom: 1px solid rgba(255,181,71,0.25);
+      border-bottom: 1px solid rgba(255, 181, 71, 0.25);
       padding: 7px 14px;
       font-family: "JetBrains Mono", ui-monospace, monospace;
       font-size: 11px;
@@ -517,7 +619,10 @@
       text-align: center;
       display: none;
     }
-    .reconnect-banner.show { display: block; }
+
+    .reconnect-banner.show {
+      display: block;
+    }
 
     /* ===== Typing ===== */
     .typing {
@@ -533,11 +638,26 @@
       animation: blink 1.2s infinite;
       color: var(--accent);
     }
-    .typing .dot:nth-child(2) { animation-delay: 0.2s; }
-    .typing .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    .typing .dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing .dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
     @keyframes blink {
-      0%, 80%, 100% { opacity: 0.2; }
-      40% { opacity: 1; }
+
+      0%,
+      80%,
+      100% {
+        opacity: 0.2;
+      }
+
+      40% {
+        opacity: 1;
+      }
     }
 
     /* ===== Composer (terminal slot) ===== */
@@ -548,7 +668,7 @@
       display: flex;
       gap: 10px;
       padding-bottom: max(14px, env(safe-area-inset-bottom));
-      box-shadow: 0 -1px 0 rgba(0,229,255,0.04);
+      box-shadow: 0 -1px 0 rgba(0, 229, 255, 0.04);
     }
 
     .composer .input-wrap {
@@ -565,7 +685,7 @@
       color: var(--accent-soft);
       font-size: 13px;
       pointer-events: none;
-      text-shadow: 0 0 6px rgba(0,229,255,0.3);
+      text-shadow: 0 0 6px rgba(0, 229, 255, 0.3);
     }
 
     .composer input {
@@ -576,7 +696,10 @@
       border: 1px solid var(--border-dark);
       background: var(--recessed);
       color: var(--accent);
-      font: 500 14px/1 "JetBrains Mono", ui-monospace, monospace;
+      font:
+        500 14px/1 "JetBrains Mono",
+        ui-monospace,
+        monospace;
       letter-spacing: 0.02em;
       box-shadow: var(--sh-recessed);
       transition: box-shadow 200ms var(--ease-soft);
@@ -584,17 +707,20 @@
     }
 
     .composer input:focus {
-      box-shadow: var(--sh-recessed), 0 0 0 1px var(--accent), 0 0 12px rgba(0,229,255,0.45);
+      box-shadow:
+        var(--sh-recessed),
+        0 0 0 1px var(--accent),
+        0 0 12px rgba(0, 229, 255, 0.45);
     }
 
     .composer input::placeholder {
-      color: rgba(127,142,163,0.6);
+      color: rgba(127, 142, 163, 0.6);
     }
 
     .composer button {
       padding: 0 18px;
       border-radius: 6px;
-      border: 1px solid rgba(0,229,255,0.55);
+      border: 1px solid rgba(0, 229, 255, 0.55);
       background: linear-gradient(180deg, #00f0ff, var(--accent-soft));
       color: #001014;
       font-family: "JetBrains Mono", ui-monospace, monospace;
@@ -604,27 +730,220 @@
       text-transform: uppercase;
       cursor: pointer;
       box-shadow: var(--sh-button);
-      transition: transform 150ms var(--ease), box-shadow 200ms var(--ease-soft);
+      transition:
+        transform 150ms var(--ease),
+        box-shadow 200ms var(--ease-soft);
     }
 
-    .composer button:hover { box-shadow: var(--sh-button-hover); }
+    .composer button:hover {
+      box-shadow: var(--sh-button-hover);
+    }
+
     .composer button:active {
       transform: translateY(2px);
-      box-shadow: inset 4px 4px 8px rgba(0,0,0,0.5), 0 0 6px rgba(0,229,255,0.4);
+      box-shadow:
+        inset 4px 4px 8px rgba(0, 0, 0, 0.5),
+        0 0 6px rgba(0, 229, 255, 0.4);
     }
 
     @media (max-width: 480px) {
-      .header { padding: 12px 14px; gap: 12px; }
-      .room-code { max-width: 120px; font-size: 13px; }
-      .messages { padding: 14px 14px 4px; }
-      .composer { padding: 12px 12px; }
-      .composer button { padding: 0 14px; font-size: 10px; }
+      .header {
+        padding: 12px 14px;
+        gap: 12px;
+      }
+
+      .room-code {
+        max-width: 120px;
+        font-size: 13px;
+      }
+
+      .messages {
+        padding: 14px 14px 4px;
+      }
+
+      .composer {
+        padding: 12px 12px;
+      }
+
+      .composer button {
+        padding: 0 14px;
+        font-size: 10px;
+      }
+
+      .room-code {
+        max-width: 110px;
+      }
+
+      .jump {
+        bottom: 132px;
+      }
+    }
+
+    /* ===== Invite link (icon button, beside room code) ===== */
+    .room-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .invite {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+      padding: 0;
+      border-radius: 5px;
+      border: 1px solid var(--border-light);
+      background: var(--border-light);
+      color: var(--muted);
+      cursor: pointer;
+      box-shadow: var(--sh-recessed);
+      transition:
+        color 150ms,
+        border-color 150ms,
+        box-shadow 200ms var(--ease-soft);
+    }
+
+    .invite:hover {
+      color: var(--accent);
+      border-color: rgba(0, 229, 255, 0.45);
+      box-shadow:
+        var(--sh-recessed),
+        0 0 10px rgba(0, 229, 255, 0.3);
+    }
+
+    .invite:focus-visible {
+      outline: 1px solid var(--accent);
+      outline-offset: 1px;
+    }
+
+    .invite svg {
+      width: 13px;
+      height: 13px;
+      display: block;
+    }
+
+    .invite .i-check {
+      display: none;
+    }
+
+    .invite.copied {
+      color: var(--ok);
+      border-color: rgba(61, 220, 151, 0.5);
+      box-shadow:
+        var(--sh-recessed),
+        0 0 10px rgba(61, 220, 151, 0.3);
+    }
+
+    .invite.copied .i-copy {
+      display: none;
+    }
+
+    .invite.copied .i-check {
+      display: block;
+    }
+
+    /* ===== Own messages ===== */
+    .msg.mine .text {
+      color: #f2f8ff;
+    }
+
+    .msg.mine .meta .who {
+      letter-spacing: 0.04em;
+    }
+
+    /* ===== Jump to latest ===== */
+    .jump {
+      position: absolute;
+      bottom: 96px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 229, 255, 0.45);
+      background: var(--panel-edge);
+      color: var(--accent);
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: var(--sh-button);
+      z-index: 5;
+    }
+
+    .jump.show {
+      display: inline-flex;
+    }
+
+    .jump:hover {
+      box-shadow: var(--sh-button-hover);
+    }
+
+    .jump:active {
+      transform: translateX(-50%) translateY(2px);
+      box-shadow:
+        inset 4px 4px 8px rgba(0, 0, 0, 0.5),
+        0 0 6px rgba(0, 229, 255, 0.4);
+    }
+
+    /* ===== Unread pulse on LED ===== */
+    .led.unread {
+      background: var(--accent);
+      box-shadow:
+        0 0 6px var(--accent),
+        0 0 14px rgba(0, 229, 255, 0.6);
+      animation-duration: 0.7s;
+    }
+
+    /* ===== /clear confirm hint ===== */
+    .typing.confirm {
+      color: var(--warn);
+      font-style: normal;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      .login h1::before,
+      .led {
+        animation: none;
+      }
+
+      .msg {
+        animation: none;
+      }
+
+      .login button,
+      .composer button,
+      .composer input,
+      .login input,
+      .room-code,
+      .invite,
+      .jump,
+      .file-card .progress>span,
+      .msg .text a {
+        transition: none;
+      }
+
+      .login button:active,
+      .composer button:active,
+      .jump:active {
+        transform: none;
+      }
     }
   </style>
 </head>
 
 <body>
-
   <div id="login" class="login">
     <h1>tiny-chat // online</h1>
     <p>Pick a name and a shared room key to enter the channel.</p>
@@ -642,7 +961,28 @@
       <div class="header">
         <div class="room">
           <span class="label">Room</span>
-          <span class="room-code" id="room-code" title="Click to copy"></span>
+          <div class="room-row">
+            <span class="room-code" id="room-code" title="Click to copy room key"></span>
+            <button type="button" class="invite" id="invite" title="Copy invite link" aria-label="Copy invite link">
+              <svg class="i-copy" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path fill="currentColor" fill-opacity="0.2" fill-rule="evenodd"
+                  d="M1.899 10.185a0.976 0.976 0 0 1 -0.9 -0.9 48.117 48.117 0 0 1 0 -7.447 0.976 0.976 0 0 1 0.9 -0.9 48.4 48.4 0 0 1 7.476 0 0.976 0.976 0 0 1 0.9 0.9c0.042 0.548 0.075 1.089 0.098 1.625a48.287 48.287 0 0 0 -5.744 0.102 0.976 0.976 0 0 0 -0.9 0.9 47.998 47.998 0 0 0 -0.098 5.823 51.714 51.714 0 0 1 -1.732 -0.103Z"
+                  clip-rule="evenodd" />
+                <path fill="currentColor" fill-opacity="0.15"
+                  d="M3.729 11.913a0.976 0.976 0 0 0 0.9 0.9 48.35 48.35 0 0 0 7.477 0 0.976 0.976 0 0 0 0.9 -0.9 48.123 48.123 0 0 0 0 -7.447 0.976 0.976 0 0 0 -0.9 -0.9 48.402 48.402 0 0 0 -7.477 0 0.976 0.976 0 0 0 -0.9 0.9 48.118 48.118 0 0 0 0 7.447Z" />
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                  d="M3.729 11.913a0.976 0.976 0 0 0 0.9 0.9 48.35 48.35 0 0 0 7.477 0 0.976 0.976 0 0 0 0.9 -0.9 48.123 48.123 0 0 0 0 -7.447 0.976 0.976 0 0 0 -0.9 -0.9 48.402 48.402 0 0 0 -7.477 0 0.976 0.976 0 0 0 -0.9 0.9 48.118 48.118 0 0 0 0 7.447Z" />
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m6.26 8.19 4.216 0" />
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m8.367 6.081 0 4.217" />
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                  d="M10.374 3.49a51.5 51.5 0 0 0 -0.099 -1.652 0.976 0.976 0 0 0 -0.9 -0.9 48.4 48.4 0 0 0 -7.476 0 0.976 0.976 0 0 0 -0.9 0.9 48.117 48.117 0 0 0 0 7.448 0.976 0.976 0 0 0 0.9 0.9c0.58 0.044 1.15 0.078 1.715 0.101" />
+              </svg>
+              <svg class="i-check" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+                  d="m3 7.4 2.8 2.8L11 4.6" />
+              </svg>
+            </button>
+          </div>
         </div>
         <div class="divider"></div>
         <div class="presence">
@@ -651,14 +991,22 @@
             <span class="label">Members</span>
             <span class="presence-count" id="presence-count"></span>
           </div>
-          <div class="presence-list" id="presence-list">connecting…</div>
+          <div class="presence-list" id="presence-list" aria-live="polite">
+            connecting…
+          </div>
         </div>
       </div>
-      <div id="reconnect-banner" class="reconnect-banner">// reconnecting</div>
+      <div id="reconnect-banner" class="reconnect-banner">
+        // reconnecting
+      </div>
       <div id="messages" class="messages"></div>
-      <div id="typing" class="typing"></div>
+      <button type="button" class="jump" id="jump">▼ latest</button>
+      <div id="typing" class="typing" aria-live="polite"></div>
+      <div id="clear-hint" class="typing confirm" aria-live="polite" hidden></div>
       <form id="composer" class="composer">
-        <button type="button" class="attach" id="attach" title="Send file or image" aria-label="Attach file">+</button>
+        <button type="button" class="attach" id="attach" title="Send file or image" aria-label="Attach file">
+          +
+        </button>
         <input type="file" id="file-input" hidden multiple />
         <div class="input-wrap">
           <span class="prompt">&gt;</span>
@@ -689,8 +1037,26 @@
         await navigator.clipboard.writeText(code);
         const original = roomCodeEl.textContent;
         roomCodeEl.textContent = "copied";
-        setTimeout(() => { roomCodeEl.textContent = original; }, 900);
-      } catch {}
+        setTimeout(() => {
+          roomCodeEl.textContent = original;
+        }, 900);
+      } catch { }
+    });
+
+          $("invite").addEventListener("click", async () => {
+            const code = roomCodeEl.dataset.room || "";
+            if (!code) return;
+            const link = `${location.origin}/?room=${encodeURIComponent(code)}`;
+            try {
+              await navigator.clipboard.writeText(link);
+              const btn = $("invite");
+              btn.classList.add("copied");
+              btn.title = "Invite link copied";
+              setTimeout(() => {
+                btn.classList.remove("copied");
+                btn.title = "Copy invite link";
+              }, 1200);
+            } catch { }
     });
 
     const GROUP_WINDOW_MS = 60_000;
@@ -699,9 +1065,14 @@
     let amTyping = false;
     let typingStopTimer = null;
 
-    const saved = JSON.parse(localStorage.getItem("tiny-chat") || "{}");
+      let saved = {};
+      try {
+        saved = JSON.parse(localStorage.getItem("tiny-chat") || "{}");
+      } catch { }
     if (saved.name) $("name").value = saved.name;
-    if (saved.room) $("room").value = saved.room;
+      const urlRoom = new URLSearchParams(location.search).get("room");
+      if (urlRoom) $("room").value = urlRoom.slice(0, 64);
+      else if (saved.room) $("room").value = saved.room;
 
     let socket = null;
     let myName = "";
@@ -747,7 +1118,11 @@
 
       socket.addEventListener("message", (e) => {
         let data;
-        try { data = JSON.parse(e.data); } catch { return; }
+        try {
+          data = JSON.parse(e.data);
+        } catch {
+          return;
+        }
         if (data.type === "history") {
           messagesEl.innerHTML = "";
           lastMsg = null;
@@ -757,17 +1132,12 @@
           const wasAtBottom = isAtBottom();
           renderMessage(data.message);
           if (wasAtBottom) scrollToBottom();
+          else ledEl.classList.add("unread");
+          updateJump();
         } else if (data.type === "cleared") {
           messagesEl.innerHTML = "";
           lastMsg = null;
-          const note = document.createElement("div");
-          note.className = "msg system";
-          const text = document.createElement("span");
-          text.className = "text";
-          text.textContent = `// history cleared by ${data.who}`;
-          note.appendChild(text);
-          messagesEl.appendChild(note);
-          scrollToBottom();
+          systemNote(`// history cleared by ${data.who}`);
         } else if (data.type === "presence") {
           peers.clear();
           for (const u of data.users) peers.set(u.id, u.who);
@@ -788,23 +1158,49 @@
       });
     }
 
+      let armClear = false;
+      const clearHintEl = $("clear-hint");
+
+      function disarmClear() {
+        armClear = false;
+        clearHintEl.hidden = true;
+        clearHintEl.textContent = "";
+        $("text").placeholder = "transmit message…";
+      }
+
     $("composer").addEventListener("submit", (e) => {
       e.preventDefault();
       const input = $("text");
-      const text = input.value;
-      if (!text.trim() || !socket) return;
-      if (text.trim() === "/clear") {
-        if (confirm("Clear all messages in this room for everyone?")) {
-          socket.send(JSON.stringify({ type: "clear" }));
-        }
+      const text = input.value.trim();
+      if (armClear) {
+        disarmClear();
         input.value = "";
         stopTyping();
+        if (socket && /^y(es)?$/i.test(text)) {
+          socket.send(JSON.stringify({ type: "clear" }));
+        } else {
+          systemNote("// clear aborted");
+        }
+        return;
+      }
+      if (!text || !socket) return;
+      if (text === "/clear") {
+        armClear = true;
+        input.value = "";
+        clearHintEl.textContent =
+          "// wipe history for everyone? type y + enter to confirm, esc to cancel";
+        clearHintEl.hidden = false;
+        input.placeholder = "y / n";
         return;
       }
       socket.send(JSON.stringify({ type: "msg", text }));
       input.value = "";
       stopTyping();
     });
+
+      $("text").addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && armClear) disarmClear();
+      });
 
     $("text").addEventListener("input", () => {
       const hasText = $("text").value.trim().length > 0;
@@ -827,7 +1223,8 @@
       typingStopTimer = null;
       if (!amTyping) return;
       amTyping = false;
-      if (socket) socket.send(JSON.stringify({ type: "typing", isTyping: false }));
+      if (socket)
+        socket.send(JSON.stringify({ type: "typing", isTyping: false }));
     }
 
     function handleTyping(who, isTyping) {
@@ -862,7 +1259,8 @@
       const verb = names.length === 1 ? " is typing" : " are typing";
       typingEl.append(verb);
       const dots = document.createElement("span");
-      dots.innerHTML = '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>';
+      dots.innerHTML =
+        '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>';
       typingEl.append(dots);
     }
 
@@ -874,6 +1272,7 @@
 
       const wrap = document.createElement("div");
       wrap.className = grouped ? "msg grouped" : "msg";
+      if (m.who === myName) wrap.classList.add("mine");
 
       const meta = document.createElement("div");
       meta.className = "meta";
@@ -899,11 +1298,14 @@
     const URL_RE = /(https?:\/\/[^\s<]+[^\s<.,!?:;'")\]])/gi;
 
     function linkify(node, text) {
+      URL_RE.lastIndex = 0;
       let last = 0;
       let match;
       while ((match = URL_RE.exec(text)) !== null) {
         if (match.index > last) {
-          node.appendChild(document.createTextNode(text.slice(last, match.index)));
+          node.appendChild(
+            document.createTextNode(text.slice(last, match.index)),
+          );
         }
         const a = document.createElement("a");
         a.href = match[0];
@@ -922,9 +1324,14 @@
       const d = new Date(ts);
       const now = new Date();
       const sameDay = d.toDateString() === now.toDateString();
-      const time = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+      const time = d.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
       if (sameDay) return time;
-      const yest = new Date(now); yest.setDate(now.getDate() - 1);
+      const yest = new Date(now);
+      yest.setDate(now.getDate() - 1);
       if (d.toDateString() === yest.toDateString()) return `yest ${time}`;
       return `${d.toLocaleDateString([], { month: "short", day: "numeric" })} ${time}`;
     }
@@ -954,16 +1361,47 @@
 
     function colorFor(name) {
       let h = 0;
-      for (let i = 0; i < name.length; i++) h = (h + name.charCodeAt(i)) % 360;
+      for (let i = 0; i < name.length; i++)
+        h = (h + name.charCodeAt(i)) % 360;
       return `hsl(${h}, 70%, 70%)`;
     }
 
     function isAtBottom() {
-      return messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight < 80;
+      return (
+        messagesEl.scrollHeight -
+        messagesEl.scrollTop -
+        messagesEl.clientHeight <
+        80
+      );
     }
     function scrollToBottom() {
       messagesEl.scrollTop = messagesEl.scrollHeight;
     }
+
+      const jumpEl = $("jump");
+      const ledEl = document.querySelector(".led");
+      function updateJump() {
+        const at = isAtBottom();
+        jumpEl.classList.toggle("show", !at);
+        if (at) ledEl.classList.remove("unread");
+      }
+      messagesEl.addEventListener("scroll", updateJump);
+      jumpEl.addEventListener("click", () => {
+        scrollToBottom();
+        updateJump();
+      });
+
+      function systemNote(text) {
+        const note = document.createElement("div");
+        note.className = "msg system";
+        const span = document.createElement("span");
+        span.className = "text";
+        span.textContent = text;
+        note.appendChild(span);
+        messagesEl.appendChild(note);
+        lastMsg = null;
+        scrollToBottom();
+      }
 
     // ===== File transfer (WebRTC P2P) =====
 
@@ -974,9 +1412,17 @@
       return `${(n / 1024 / 1024 / 1024).toFixed(2)} GB`;
     }
 
-    function renderFileBubble({ who, name, size, mime, ts, direction, peerStatuses }) {
+      function renderFileBubble({
+        who,
+        name,
+        size,
+        mime,
+        ts,
+        direction,
+        peerStatuses,
+      }) {
       const grouped =
-        lastMsg && lastMsg.who === who && (ts - lastMsg.ts) < GROUP_WINDOW_MS;
+        lastMsg && lastMsg.who === who && ts - lastMsg.ts < GROUP_WINDOW_MS;
       const wrap = document.createElement("div");
       wrap.className = grouped ? "msg grouped" : "msg";
 
@@ -1034,7 +1480,10 @@
           if (!(node instanceof HTMLElement)) continue;
           node.querySelectorAll("[data-blob-url]").forEach((el) => {
             const url = liveBlobUrls.get(el);
-            if (url) { URL.revokeObjectURL(url); liveBlobUrls.delete(el); }
+            if (url) {
+              URL.revokeObjectURL(url);
+              liveBlobUrls.delete(el);
+            }
           });
         }
       }
@@ -1067,11 +1516,20 @@
       if (!socket || !myId) return;
       const wasAtBottom = isAtBottom();
       const fileId = crypto.randomUUID();
-      const meta = { name: file.name, size: file.size, mime: file.type || "application/octet-stream" };
+      const meta = {
+        name: file.name,
+        size: file.size,
+        mime: file.type || "application/octet-stream",
+      };
       const ts = Date.now();
 
       const card = renderFileBubble({
-        who: myName, name: meta.name, size: meta.size, mime: meta.mime, ts, direction: "out",
+        who: myName,
+        name: meta.name,
+        size: meta.size,
+        mime: meta.mime,
+        ts,
+        direction: "out",
       });
       if (wasAtBottom) scrollToBottom();
 
@@ -1084,7 +1542,13 @@
 
       socket.send(JSON.stringify({ type: "file-offer", fileId, ...meta }));
 
-      const record = { name: meta.name, size: meta.size, mime: meta.mime, peers: new Map(), card };
+      const record = {
+        name: meta.name,
+        size: meta.size,
+        mime: meta.mime,
+        peers: new Map(),
+        card,
+      };
       outgoing.set(fileId, record);
 
       const updateAggregate = () => {
@@ -1116,7 +1580,14 @@
       for (const peerId of targets) {
         const state = { status: "connecting", progress: 0 };
         record.peers.set(peerId, state);
-        sendFileToPeer(fileId, peerId, file, meta, state, updateAggregate).catch((err) => {
+        sendFileToPeer(
+          fileId,
+          peerId,
+          file,
+          meta,
+          state,
+          updateAggregate,
+        ).catch((err) => {
           console.error("send to", peerId, "failed", err);
           state.status = "failed";
           updateAggregate();
@@ -1125,7 +1596,14 @@
       updateAggregate();
     }
 
-    async function sendFileToPeer(fileId, peerId, file, meta, state, onUpdate) {
+      async function sendFileToPeer(
+        fileId,
+        peerId,
+        file,
+        meta,
+        state,
+        onUpdate,
+      ) {
       const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
       const dc = pc.createDataChannel(`file-${fileId}`, { ordered: true });
       dc.binaryType = "arraybuffer";
@@ -1133,10 +1611,13 @@
 
       pc.onicecandidate = (e) => {
         if (e.candidate) {
-          socket.send(JSON.stringify({
-            type: "signal", to: peerId,
-            payload: { kind: "ice", fileId, candidate: e.candidate },
-          }));
+          socket.send(
+            JSON.stringify({
+              type: "signal",
+              to: peerId,
+              payload: { kind: "ice", fileId, candidate: e.candidate },
+            }),
+          );
         }
       };
       pc.oniceconnectionstatechange = () => {
@@ -1148,7 +1629,10 @@
         }
       };
       pc.onconnectionstatechange = () => {
-        if (pc.connectionState === "failed" || pc.connectionState === "disconnected") {
+        if (
+          pc.connectionState === "failed" ||
+          pc.connectionState === "disconnected"
+        ) {
           if (state.status !== "done") {
             state.status = "failed";
             onUpdate();
@@ -1162,44 +1646,73 @@
 
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
-      socket.send(JSON.stringify({
-        type: "signal", to: peerId,
-        payload: { kind: "offer", fileId, sdp: pc.localDescription },
-      }));
+      socket.send(
+        JSON.stringify({
+          type: "signal",
+          to: peerId,
+          payload: { kind: "offer", fileId, sdp: pc.localDescription },
+        }),
+      );
 
       await new Promise((resolve, reject) => {
-        const timeout = setTimeout(() => reject(new Error("dc open timeout")), 30_000);
-        dc.onopen = () => { clearTimeout(timeout); resolve(); };
-        dc.onerror = (e) => { clearTimeout(timeout); reject(e); };
+        const timeout = setTimeout(
+          () => reject(new Error("dc open timeout")),
+          30_000,
+        );
+        dc.onopen = () => {
+          clearTimeout(timeout);
+          resolve();
+        };
+        dc.onerror = (e) => {
+          clearTimeout(timeout);
+          reject(e);
+        };
       });
 
       state.status = "sending";
       onUpdate();
 
-      const header = JSON.stringify({ kind: "header", fileId, name: meta.name, size: meta.size, mime: meta.mime });
+      const header = JSON.stringify({
+        kind: "header",
+        fileId,
+        name: meta.name,
+        size: meta.size,
+        mime: meta.mime,
+      });
       dc.send(header);
 
       let offset = 0;
+      let lastUi = 0;
+      const updateUi = (force = false) => {
+        const now = performance.now();
+        if (!force && now - lastUi < 50) return;
+        lastUi = now;
+        onUpdate();
+      };
+
       const reader = file.stream().getReader();
       try {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          let buf = value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength);
           let pos = 0;
-          while (pos < buf.byteLength) {
-            const slice = buf.slice(pos, pos + CHUNK_SIZE);
+          while (pos < value.byteLength) {
+            const end = Math.min(pos + CHUNK_SIZE, value.byteLength);
+            const slice = value.subarray(pos, end);
             while (dc.bufferedAmount > MAX_BUFFER) {
               await new Promise((r) => {
-                const onLow = () => { dc.removeEventListener("bufferedamountlow", onLow); r(); };
+                const onLow = () => {
+                  dc.removeEventListener("bufferedamountlow", onLow);
+                  r();
+                };
                 dc.addEventListener("bufferedamountlow", onLow);
               });
             }
             dc.send(slice);
-            pos += slice.byteLength;
+            pos = end;
             offset += slice.byteLength;
             state.progress = meta.size ? offset / meta.size : 1;
-            onUpdate();
+            updateUi();
           }
         }
         dc.send(JSON.stringify({ kind: "eof", fileId }));
@@ -1215,8 +1728,12 @@
         onUpdate();
       } finally {
         setTimeout(() => {
-          try { dc.close(); } catch {}
-          try { pc.close(); } catch {}
+          try {
+            dc.close();
+          } catch { }
+          try {
+            pc.close();
+          } catch { }
           signalingPCs.delete(key);
           // Outgoing record cleanup once all peers settled
           const rec = outgoing.get(fileId);
@@ -1242,7 +1759,11 @@
       await entry.pc.setRemoteDescription(sdp);
       entry.remoteSet = true;
       for (const c of entry.pendingIce) {
-        try { await entry.pc.addIceCandidate(c); } catch (e) { console.warn("ice flush fail", e); }
+        try {
+          await entry.pc.addIceCandidate(c);
+        } catch (e) {
+          console.warn("ice flush fail", e);
+        }
       }
       entry.pendingIce = [];
     }
@@ -1250,14 +1771,24 @@
     function handleFileOffer(data) {
       const wasAtBottom = isAtBottom();
       const card = renderFileBubble({
-        who: data.fromWho, name: data.name, size: data.size, mime: data.mime,
-        ts: Date.now(), direction: "in",
+        who: data.fromWho,
+        name: data.name,
+        size: data.size,
+        mime: data.mime,
+        ts: Date.now(),
+        direction: "in",
       });
       if (wasAtBottom) scrollToBottom();
       incoming.set(data.fileId, {
-        from: data.from, fromWho: data.fromWho,
-        name: data.name, size: data.size, mime: data.mime,
-        received: 0, chunks: [], card, pc: null,
+        from: data.from,
+        fromWho: data.fromWho,
+        name: data.name,
+        size: data.size,
+        mime: data.mime,
+        received: 0,
+        chunks: [],
+        card,
+        pc: null,
       });
     }
 
@@ -1276,26 +1807,32 @@
 
         pc.onicecandidate = (e) => {
           if (e.candidate) {
-            socket.send(JSON.stringify({
-              type: "signal", to: from,
-              payload: { kind: "ice", fileId, candidate: e.candidate },
-            }));
+            socket.send(
+              JSON.stringify({
+                type: "signal",
+                to: from,
+                payload: { kind: "ice", fileId, candidate: e.candidate },
+              }),
+            );
           }
         };
         pc.ondatachannel = (e) => {
           const dc = e.channel;
           dc.binaryType = "arraybuffer";
           dc.onmessage = (ev) => receiveChunk(fileId, ev.data);
-          dc.onclose = () => {};
+          dc.onclose = () => { };
         };
 
         await applyRemoteDescription(entry, payload.sdp);
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
-        socket.send(JSON.stringify({
-          type: "signal", to: from,
-          payload: { kind: "answer", fileId, sdp: pc.localDescription },
-        }));
+        socket.send(
+          JSON.stringify({
+            type: "signal",
+            to: from,
+            payload: { kind: "answer", fileId, sdp: pc.localDescription },
+          }),
+        );
       } else if (kind === "answer") {
         const entry = signalingPCs.get(`out:${fileId}:${from}`);
         if (!entry) return;
@@ -1308,7 +1845,11 @@
         if (!entry.remoteSet) {
           entry.pendingIce.push(payload.candidate);
         } else {
-          try { await entry.pc.addIceCandidate(payload.candidate); } catch (e) { console.warn("ice fail", e); }
+          try {
+            await entry.pc.addIceCandidate(payload.candidate);
+          } catch (e) {
+            console.warn("ice fail", e);
+          }
         }
       }
     }
@@ -1318,20 +1859,31 @@
       if (!rec) return;
       if (typeof data === "string") {
         let parsed;
-        try { parsed = JSON.parse(data); } catch { return; }
+        try {
+          parsed = JSON.parse(data);
+        } catch {
+          return;
+        }
         if (parsed.kind === "header") {
-          rec.name = parsed.name; rec.size = parsed.size; rec.mime = parsed.mime;
+          rec.name = parsed.name;
+          rec.size = parsed.size;
+          rec.mime = parsed.mime;
           rec.card.fname.textContent = parsed.name;
           rec.card.status.textContent = "receiving…";
         } else if (parsed.kind === "eof") {
-          const blob = new Blob(rec.chunks, { type: rec.mime || "application/octet-stream" });
+          const blob = new Blob(rec.chunks, {
+            type: rec.mime || "application/octet-stream",
+          });
           rec.card.bar.style.width = "100%";
           rec.card.status.textContent = "received";
           rec.card.status.classList.add("ok");
           showPreview(rec.card, blob, rec.name, rec.mime);
           rec.chunks = [];
           setTimeout(() => {
-            if (rec.pc) try { rec.pc.close(); } catch {}
+            if (rec.pc)
+              try {
+                rec.pc.close();
+              } catch { }
             signalingPCs.delete(`in:${fileId}:${rec.from}`);
             incoming.delete(fileId);
           }, 2000);
@@ -1386,7 +1938,6 @@
       shellEl?.classList.remove("dragover");
       for (const f of e.dataTransfer.files) sendFile(f);
     });
-
   </script>
 </body>
 

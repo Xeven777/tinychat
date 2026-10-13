@@ -1,6 +1,6 @@
 # tiny-chat 💬
 
-A featherweight realtime chat for 4–5 friends. Runs on Cloudflare's edge via [PartyKit](https://www.partykit.io/), served from a single static HTML file. Free forever at this scale. ☁️✨
+A featherweight realtime chat for 4–5 friends. Runs on Cloudflare's edge via [PartyServer](https://developers.cloudflare.com/) (Durable Objects), served from a single static HTML file. Free forever at this scale. ☁️✨
 
 > Type your name + a shared room key, land in a chat room, and talk in realtime. The whole client is one HTML file under 10 KB. The whole server is one TypeScript class with four hooks. That's the entire app.
 
@@ -26,7 +26,7 @@ A featherweight realtime chat for 4–5 friends. Runs on Cloudflare's edge via [
 
 ```
 ┌────────────┐  WebSocket   ┌──────────────────────┐
-│ index.html │ ───────────▶ │ PartyKit "ChatRoom"  │
+│ index.html │ ───────────▶ │ PartyServer "ChatRoom"│
 │ (client)   │ ◀─────────── │ (Durable Object)     │
 └────────────┘   broadcasts │  • active sockets    │
       ▲                     │  • last 100 messages │
@@ -38,7 +38,7 @@ A featherweight realtime chat for 4–5 friends. Runs on Cloudflare's edge via [
 - One **room key** → one **Durable Object instance** → one chat room.
 - The DO holds active WebSocket connections in memory and the last 100 messages in storage.
 - The room key is the only auth. Strangers can't guess it; friends share it once.
-- The same PartyKit deploy serves both the server logic _and_ the static client. One command, one URL.
+- The same Worker deploy serves both the server logic _and_ the static client. One command, one URL.
 
 ### Wire protocol 📡
 
@@ -62,30 +62,30 @@ JSON over WebSocket, `type` discriminator:
 
 ### Prereqs
 
-- Node.js 18+
+- [Bun](https://bun.sh)
 - A Cloudflare account (free tier is fine)
 
 ### Run locally
 
 ```bash
-npm install
-npx partykit dev
+bun install
+bun run dev
 ```
 
-Opens at **http://127.0.0.1:1999**. Open in two tabs to chat with yourself. Edits hot-reload.
+Opens at **http://127.0.0.1:8787**. Open in two tabs to chat with yourself. Edits hot-reload.
 
 ### Deploy
 
 ```bash
-npx partykit deploy
+bun run deploy
 ```
 
-First run prompts for Cloudflare login. After that you get a URL like `https://tiny-chat.<your-username>.partykit.dev`. Share with friends. 🎉
+First run prompts for Cloudflare login. After that you get a URL like `https://tiny-chat.<your-subdomain>.workers.dev`. Share with friends. 🎉
 
 ### Type-check
 
 ```bash
-npx tsc --noEmit
+bun run typecheck
 ```
 
 There are no tests — this is small enough to verify by opening two tabs.
@@ -102,7 +102,7 @@ tiny-chat/
 │   ├── index.html           # The whole client, single file
 │   ├── manifest.webmanifest # Add-to-home-screen manifest
 │   └── icon.svg             # App icon
-├── partykit.json            # PartyKit config (`serve: "public"` is the magic)
+├── wrangler.jsonc           # Workers config (`assets.directory: "./public"` is the magic)
 ├── package.json
 ├── tsconfig.json
 └── CLAUDE.md                # Notes for AI pair programmers
@@ -125,7 +125,7 @@ tiny-chat/
 - We keep the **last 100 messages** per room — older ones drop off when message 101 arrives.
 - Storage is **durable and has no TTL**: log out, close the tab, come back days later — same room key, you'll see the same history. Friends see it too.
 - Wipe a room with **`/clear`** in the composer (type it as a message). The 5-friend trust model means anyone in the room can do it.
-- Hard reset from the CLI if you ever need it: `npx partykit delete <room-key>` removes the entire DO instance.
+- Hard reset from the CLI if you ever need it: `bunx wrangler delete <room-key>` removes the entire DO instance.
 
 ---
 
@@ -139,7 +139,7 @@ tiny-chat/
 
 ## 💸 What it costs
 
-- **PartyKit free tier** easily covers this.
+- **Cloudflare Workers free plan** (includes SQLite-backed Durable Objects) easily covers this.
 - If you exceed it, you fall through to raw Cloudflare Durable Object pricing. For 5 friends + ~1000 messages/day, that's pennies/month.
 - **Zero bandwidth charges** from Cloudflare — that's a CF-wide policy and a big reason this stack is so cheap. 🎁
 
@@ -152,13 +152,13 @@ tiny-chat/
 | 📷 Image / file sharing | Needs a Cloudflare R2 bucket + signed-URL flow. Worth it; out of scope for v1.                     |
 | ✅ Read receipts        | For 5 friends, the noise of "seen by X, Y" outweighs the value. Skip.                              |
 | 🔒 E2E encryption       | Overkill for friends. Doable with Web Crypto + a shared passphrase if you care.                    |
-| 🌐 Custom domain        | CNAME the partykit.dev URL or bind via the Cloudflare dashboard. Default URL is fine for 5 people. |
+| 🌐 Custom domain        | Bind a domain to the Worker via the Cloudflare dashboard. Default workers.dev URL is fine for 5 people. |
 
 ---
 
 ## 🛠️ Built with
 
-- [PartyKit](https://www.partykit.io/) — the four-hook Durable Object wrapper
+- [PartyServer](https://github.com/cloudflare/partykit/tree/main/packages/partyserver) — the four-hook Durable Object wrapper
 - [partysocket](https://github.com/partykit/partykit/tree/main/packages/partysocket) — WebSocket client with reconnect/backoff baked in
 - Vanilla HTML, CSS, JS — no framework, no build step, no nonsense
 
